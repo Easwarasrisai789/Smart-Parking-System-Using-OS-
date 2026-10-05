@@ -65,12 +65,61 @@ docs/                Architecture, performance, and fault-test notes
 
 ## Run locally
 
-Use a Go 1.27 toolchain:
+Install Go 1.27.1 or newer, then run the tests and build:
 
 ```powershell
 go test ./...
 go test -race ./...
 go build ./...
+```
+
+### Run the browser demo with Docker
+
+Docker Desktop is an alternative to installing Go locally. From PowerShell in the project root, build and run the HTTP application:
+
+```powershell
+docker build -f Dockerfile.app -t smart-parking-web .
+docker run --rm --name smart-parking-web -p 8081:8080 smart-parking-web
+```
+
+The container listens on port 8080; the example publishes it on host port 8081 to avoid a conflict if port 8080 is already in use. Keep this terminal open. In a second PowerShell window, verify the local app:
+
+```powershell
+Invoke-RestMethod http://localhost:8081/healthz
+```
+
+The browser UI is at [http://localhost:8081](http://localhost:8081). Parking data is in memory and resets when the app stops. Enter a vehicle into an available slot, then exit with the same slot and vehicle ID. A `409 Conflict` means the requested operation conflicts with the current slot/vehicle state.
+
+### Share a temporary public demo link
+
+Install `cloudflared`, then run this in a second terminal while the Docker app is running:
+
+```powershell
+cloudflared tunnel --url http://localhost:8081
+```
+
+If `cloudflared` is not on `PATH`, use its full install path, for example:
+
+```powershell
+& "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://localhost:8081
+```
+
+Copy the `https://...trycloudflare.com` URL printed after **Your quick Tunnel has been created**. Keep both the container and tunnel running while the link is in use. Quick Tunnel links are temporary and change when a new tunnel is started. The standalone Docker demo does not run Grafana or the Raft cluster, so live Raft monitoring is not shown.
+
+To stop the tunnel, press `Ctrl+C` in its terminal. To stop the app, press `Ctrl+C` in the Docker terminal; `--rm` removes the stopped container.
+
+### Test the browser demo API
+
+With the app running, these PowerShell requests check a slot and perform one enter/exit cycle:
+
+```powershell
+Invoke-RestMethod http://localhost:8081/api/slots/slot-demo
+Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/enter `
+  -ContentType "application/json" `
+  -Body '{"slotId":"slot-demo","vehicleId":"vehicle-demo"}'
+Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/exit `
+  -ContentType "application/json" `
+  -Body '{"slotId":"slot-demo","vehicleId":"vehicle-demo"}'
 ```
 
 Start the parking gRPC server in one terminal:
@@ -94,6 +143,20 @@ go run ./cmd/stress -address localhost:50051 -clients 100 -operations 1000
 ```
 
 `operations` is the number of parking cycles per client; a successful cycle issues one ENTER and one EXIT RPC. The stress tool reports actual attempted/successful/failed requests, elapsed time, throughput, and mean RPC latency.
+
+## Push the project to GitHub
+
+The repository is already initialized with the `main` branch and `origin` remote. Install Git for Windows and reopen PowerShell if `git` is not recognized. From the project root, review and push the project:
+
+```powershell
+git status
+git remote -v
+git add .
+git commit -m "Document complete project procedure"
+git push -u origin main
+```
+
+If there is nothing new to commit, Git will say so; continue with `git push -u origin main`. Complete GitHub sign-in if prompted. Do not rerun `git init` or add `origin` again when the repository is already initialized. After a successful push, the public source repository is [github.com/Easwarasrisai789/Smart-Parking-System-Using-OS-](https://github.com/Easwarasrisai789/Smart-Parking-System-Using-OS-).
 
 ## Build the Raft Docker image
 
@@ -230,5 +293,3 @@ Performance numbers must be recorded with the machine/toolchain context; see [do
 - Add readiness/liveness probes and resource requests/limits.
 - Improve consistency, snapshotting, and storage restart recovery.
 - Run longer distributed fault and stress tests and document reproducible benchmark environments.
-#   S m a r t - P a r k i n g - S y s t e m - U s i n g - O S -  
- 
