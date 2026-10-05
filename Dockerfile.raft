@@ -1,0 +1,38 @@
+# ============================================
+# Build stage
+# ============================================
+FROM golang:1.27 AS builder
+
+WORKDIR /app
+
+# Copy dependency files first
+COPY go.mod go.sum ./
+
+RUN go mod download
+
+# Copy project source
+COPY . .
+
+# Build Raft node
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -o /raft-node ./cmd/raft-node
+
+# ============================================
+# Runtime stage
+# ============================================
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+# Copy compiled binary
+COPY --from=builder /raft-node /app/raft-node
+
+# Raft gRPC port
+EXPOSE 6000
+
+# Default configuration
+ENV NODE_ID=0
+ENV RAFT_ADDRESS=:6000
+
+# Start Raft node
+ENTRYPOINT ["/app/raft-node"]

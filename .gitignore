@@ -1,0 +1,20 @@
+# Local build outputs
+/parking-client
+/parking-server
+/raft-node
+/web-image-transfer.tar
+
+# Local secrets and configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+kubeconfig
+
+# Generated test and coverage artifacts
+*.test
+coverage.out
+
+# Editor attachment
+/cmd/raft-node/Pasted Image

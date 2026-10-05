@@ -1,0 +1,6 @@
+.git
+.devcontainer
+parking-client
+parking-server
+raft-node
+**/*_test.go

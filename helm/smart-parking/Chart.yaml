@@ -1,0 +1,6 @@
+apiVersion: v2
+name: smart-parking
+description: Raft cluster and browser-based smart parking demo with optional HTTPS ingress
+type: application
+version: 0.2.0
+appVersion: "1.0.0"

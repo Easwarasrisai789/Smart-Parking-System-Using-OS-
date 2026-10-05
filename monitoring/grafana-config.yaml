@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        uid: prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+  dashboard-provider.yaml: |
+    apiVersion: 1
+    providers:
+      - name: Smart Parking
+        orgId: 1
+        folder: Smart Parking
+        type: file
+        disableDeletion: true
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards
+  raft-dashboard.json: |
+    {
+      "id": null,
+      "uid": "smart-parking-raft",
+      "title": "Smart Parking Raft Cluster",
+      "tags": ["raft", "smart-parking"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "5s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Raft Leader",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "raft_is_leader", "legendFormat": "node {{node_id}}", "refId": "A"}]
+        },
+        {
+          "id": 2,
+          "title": "Current Term",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "raft_current_term", "legendFormat": "node {{node_id}}", "refId": "A"}]
+        },
+        {
+          "id": 3,
+          "title": "Commit Index",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "raft_commit_index", "legendFormat": "node {{node_id}}", "refId": "A"}]
+        },
+        {
+          "id": 4,
+          "title": "RPC Requests (5m)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "sum by (node_id, method) (increase(raft_rpc_requests_total[5m]))", "legendFormat": "node {{node_id}} {{method}}", "refId": "A"}]
+        },
+        {
+          "id": 5,
+          "title": "RPC Request Rate",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "sum by (node_id, method) (rate(raft_rpc_requests_total[5m]))", "legendFormat": "node {{node_id}} {{method}}", "refId": "A"}]
+        },
+        {
+          "id": 6,
+          "title": "Average RPC Latency (seconds)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "sum by (node_id, method) (rate(raft_rpc_request_duration_seconds_sum[5m])) / sum by (node_id, method) (rate(raft_rpc_request_duration_seconds_count[5m]))", "legendFormat": "node {{node_id}} {{method}}", "refId": "A"}]
+        },
+        {
+          "id": 7,
+          "title": "Node Availability",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"expr": "up{job=\"raft\"}", "legendFormat": "{{instance}}", "refId": "A"}]
+        }
+      ]
+    }
