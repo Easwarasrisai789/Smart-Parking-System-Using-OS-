@@ -95,7 +95,7 @@ func TestParkingHTTPHealthAndPage(t *testing.T) {
 	page := request(t, server.Handler(), http.MethodGet, "/", "")
 	if page.Code != http.StatusOK ||
 		!bytes.Contains(page.Body.Bytes(), []byte("<title>Smart Parking</title>")) ||
-		!bytes.Contains(page.Body.Bytes(), []byte(`src="/grafana/d/smart-parking-raft/smart-parking-raft?orgId=1&amp;kiosk"`)) {
+		bytes.Contains(page.Body.Bytes(), []byte("Live Raft Monitoring")) {
 		t.Fatalf("unexpected page response: %d", page.Code)
 	}
 }

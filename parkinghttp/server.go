@@ -173,8 +173,6 @@ const indexHTML = `<!doctype html>
     input{border:1px solid #b9c4d4}button{border:0;background:#1459c7;color:#fff;cursor:pointer}
     button.secondary{background:#34435c}.actions{display:flex;gap:.7rem;margin-top:1rem}
     #result{min-height:1.5rem;margin-top:1.25rem;font-weight:600}
-    .dashboard{margin-top:2rem}
-    .dashboard iframe{display:block;width:100%;height:850px;border:0;border-radius:12px;background:#111}
     @media(max-width:520px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
@@ -193,13 +191,6 @@ const indexHTML = `<!doctype html>
     </div>
   </form>
   <div id="result" role="status" aria-live="polite"></div>
-  <section class="dashboard" aria-labelledby="dashboard-title">
-    <h2 id="dashboard-title">Live Raft Monitoring</h2>
-    <p>Cluster health and Raft metrics from Grafana.</p>
-    <iframe title="Smart Parking Raft Grafana dashboard"
-      src="/grafana/d/smart-parking-raft/smart-parking-raft?orgId=1&amp;kiosk"
-      loading="lazy"></iframe>
-  </section>
 </main>
 <script>
 const result=document.querySelector("#result");
