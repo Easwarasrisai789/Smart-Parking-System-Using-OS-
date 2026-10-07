@@ -293,3 +293,9 @@ Performance numbers must be recorded with the machine/toolchain context; see [do
 - Add readiness/liveness probes and resource requests/limits.
 - Improve consistency, snapshotting, and storage restart recovery.
 - Run longer distributed fault and stress tests and document reproducible benchmark environments.
+
+###commandds###
+# docker build -f Dockerfile.app -t smart-parking-web .
+docker run --rm --name smart-parking-web -p 8081:8080 smart-parking-web
+
+# & "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://127.0.0.1:8081
